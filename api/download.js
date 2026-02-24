@@ -38,19 +38,13 @@ export default async function handler(req, res) {
           : "https://api.ferdev.my.id/downloader/ytmp4";
 
       apiUrl = `${endpoint}?link=${encodeURIComponent(url)}&apikey=${API_KEY}`;
-    }
-
-    else if (url.includes("instagram.com")) {
+    } else if (url.includes("instagram.com")) {
       platform = "instagram";
       apiUrl = `https://api.ferdev.my.id/downloader/instagram?link=${encodeURIComponent(url)}&apikey=${API_KEY}`;
-    }
-
-    else if (url.includes("tiktok.com")) {
+    } else if (url.includes("tiktok.com")) {
       platform = "tiktok";
       apiUrl = `https://api.ferdev.my.id/downloader/tiktok?link=${encodeURIComponent(url)}&apikey=${API_KEY}`;
-    }
-
-    else {
+    } else {
       return res.json({ success: false, message: "Platform tidak didukung" });
     }
 
@@ -61,6 +55,7 @@ export default async function handler(req, res) {
       return res.json({ success: false, message: "Gagal dari API" });
     }
 
+    // Default values
     let downloadUrl = "";
     let title = "download";
     let thumbnail = null;
@@ -71,37 +66,58 @@ export default async function handler(req, res) {
       title = cleanTitle(result.data?.metadata?.title);
       thumbnail = `https://img.youtube.com/vi/${extractID(url)}/hqdefault.jpg`;
       extension = format === "mp3" ? "mp3" : "mp4";
-    }
 
-    if (platform === "instagram") {
-      const igData = result.data;
-      downloadUrl = Array.isArray(igData?.dlink)
-        ? igData.dlink[0]
-        : igData?.dlink;
-
-      title = `instagram_${igData?.metadata?.username || "download"}`;
-      extension = igData?.type === "photo" ? "jpg" : "mp4";
-      thumbnail = downloadUrl;
+      return res.json({
+        success: true,
+        platform,
+        title,
+        extension,
+        thumbnail,
+        download: downloadUrl,
+      });
     }
 
     if (platform === "tiktok") {
       downloadUrl = result.data?.play || result.data?.video;
       title = cleanTitle(result.data?.title);
       thumbnail = result.data?.cover;
+
+      return res.json({
+        success: true,
+        platform,
+        title,
+        extension: "mp4",
+        thumbnail,
+        download: downloadUrl,
+      });
     }
 
-    if (!downloadUrl) {
-      return res.json({ success: false, message: "Link tidak ditemukan" });
-    }
+    if (platform === "instagram") {
+      const igData = result.data;
 
-    return res.json({
-      success: true,
-      platform,
-      title,
-      extension,
-      thumbnail,
-      download: downloadUrl,
-    });
+      let mediaList = [];
+
+      if (Array.isArray(igData?.dlink)) {
+        mediaList = igData.dlink.map((item) => ({
+          url: item,
+          type: item.includes(".jpg") ? "image" : "video",
+        }));
+      } else if (igData?.dlink) {
+        mediaList = [{
+          url: igData.dlink,
+          type: igData.dlink.includes(".jpg") ? "image" : "video",
+        }];
+      }
+
+      title = `instagram_${igData?.metadata?.username || "download"}`;
+
+      return res.json({
+        success: true,
+        platform,
+        title,
+        media: mediaList,
+      });
+    }
 
   } catch (err) {
     return res.json({ success: false, message: "Server error" });
