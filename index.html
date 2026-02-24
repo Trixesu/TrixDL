@@ -1,311 +1,234 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Media Downloader</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Media Downloader</title>
 
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: "Segoe UI", sans-serif;
-    }
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Segoe UI", sans-serif;
+}
 
-    body {
-      background: linear-gradient(135deg, #1e3a8a, #2563eb, #60a5fa);
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-    }
+body {
+  background: linear-gradient(135deg, #1e3a8a, #2563eb, #60a5fa);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
 
-    .container {
-      width: 420px;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
-      text-align: center;
-    }
+.container {
+  width: 420px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  text-align: center;
+}
 
-    h1 {
-      margin-bottom: 20px;
-      font-weight: 600;
-    }
+h1 {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
 
-    input,
-    select {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      margin-bottom: 15px;
-      font-size: 14px;
-    }
+input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
 
-    button {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      font-weight: bold;
-      cursor: pointer;
-      background: #00c6ff;
-      color: white;
-      transition: 0.3s;
-    }
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
 
-    button:hover {
-      background: #0072ff;
-    }
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  background: #00c6ff;
+  color: white;
+  transition: 0.3s;
+}
 
-    .preview {
-      margin-top: 20px;
-      display: none;
-    }
+button:hover {
+  background: #0072ff;
+}
 
-    .title {
-      font-size: 14px;
-      margin-top: 10px;
-    }
+.preview {
+  margin-top: 20px;
+  display: none;
+}
 
-    .loader {
-      display: none;
-      margin-top: 15px;
-    }
+.preview img {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
 
-    .toast {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #ff4b4b;
-      padding: 10px 15px;
-      border-radius: 8px;
-      display: none;
-    }
+.title {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
 
-    /* Carousel */
-    .carousel {
-      position: relative;
-      overflow: hidden;
-      border-radius: 12px;
-    }
+.loader {
+  display: none;
+  margin-top: 15px;
+}
 
-    .carousel-track {
-      display: flex;
-      transition: transform 0.4s ease;
-    }
-
-    .carousel-item {
-      min-width: 100%;
-    }
-
-    .carousel-item img,
-    .carousel-item video {
-      width: 100%;
-      border-radius: 12px;
-    }
-
-    .nav {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      background: rgba(0, 0, 0, 0.5);
-      border: none;
-      color: white;
-      font-size: 20px;
-      padding: 5px 10px;
-      cursor: pointer;
-      border-radius: 8px;
-    }
-
-    .prev {
-      left: 10px;
-    }
-
-    .next {
-      right: 10px;
-    }
-  </style>
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #ff4b4b;
+  padding: 10px 15px;
+  border-radius: 8px;
+  display: none;
+}
+</style>
 </head>
 
 <body>
-  <div class="container">
-    <h1>Media Downloader</h1>
 
-    <input type="text" id="url" placeholder="Paste link here..." />
-    <select id="format">
-      <option value="mp4">MP4 (Video)</option>
-      <option value="mp3">MP3 (Audio)</option>
-    </select>
-    <button onclick="downloadMedia()">Download</button>
+<div class="container">
+  <h1>Media Downloader</h1>
 
-    <div class="loader" id="loader">Processing...</div>
+  <input type="text" id="url" placeholder="Paste link here..." />
 
-    <div class="preview" id="preview">
-      <div class="carousel">
-        <button class="nav prev" onclick="prevSlide()">❮</button>
-        <div class="carousel-track" id="carouselTrack"></div>
-        <button class="nav next" onclick="nextSlide()">❯</button>
-      </div>
-      <div class="title" id="videoTitle"></div>
-    </div>
+  <select id="format">
+    <option value="mp4">MP4 (Video)</option>
+    <option value="mp3">MP3 (Audio)</option>
+  </select>
+
+  <button onclick="downloadMedia()">Download</button>
+
+  <div class="loader" id="loader">Processing...</div>
+
+  <div class="preview" id="preview">
+    <img id="thumb" src="" />
+    <div class="title" id="videoTitle"></div>
   </div>
+</div>
 
-  <div class="toast" id="toast"></div>
+<div class="toast" id="toast"></div>
 
-  <script>
-    const urlInput = document.getElementById("url");
-    const formatSelect = document.getElementById("format");
-    const preview = document.getElementById("preview");
-    const videoTitle = document.getElementById("videoTitle");
-    const loader = document.getElementById("loader");
-    const toast = document.getElementById("toast");
+<script>
+const urlInput = document.getElementById("url");
+const formatSelect = document.getElementById("format");
+const preview = document.getElementById("preview");
+const thumb = document.getElementById("thumb");
+const videoTitle = document.getElementById("videoTitle");
+const loader = document.getElementById("loader");
+const toast = document.getElementById("toast");
 
-    let mediaItems = [];
-    let currentIndex = 0;
+/* ========================= */
+/* Detect YouTube */
+/* ========================= */
 
-    /* ========================= */
-    /* Detect YouTube Thumbnail */
-    /* ========================= */
-    urlInput.addEventListener("input", () => {
-      const url = urlInput.value;
-      if (url.includes("youtube.com") || url.includes("youtu.be")) {
-        formatSelect.style.display = "block";
-      } else {
-        formatSelect.style.display = "none";
-        preview.style.display = "none";
-      }
+urlInput.addEventListener("input", () => {
+  const url = urlInput.value;
+
+  if (url.includes("youtube.com") || url.includes("youtu.be")) {
+    formatSelect.style.display = "block";
+    showThumbnail(url);
+  } else {
+    formatSelect.style.display = "none";
+    preview.style.display = "none";
+  }
+});
+
+/* ========================= */
+/* Get YouTube Thumbnail */
+/* ========================= */
+
+function extractVideoID(url) {
+  const regExp =
+    /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?v=))([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[7].length === 11 ? match[7] : null;
+}
+
+function showThumbnail(url) {
+  const id = extractVideoID(url);
+  if (!id) return;
+
+  thumb.src = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+  preview.style.display = "block";
+}
+
+/* ========================= */
+/* Toast */
+/* ========================= */
+
+function showToast(message) {
+  toast.innerText = message;
+  toast.style.display = "block";
+  setTimeout(() => {
+    toast.style.display = "none";
+  }, 3000);
+}
+
+/* ========================= */
+/* Download */
+/* ========================= */
+
+async function downloadMedia() {
+  const url = urlInput.value;
+  const format = formatSelect.value;
+
+  if (!url) return showToast("URL tidak boleh kosong");
+
+  loader.style.display = "block";
+
+  try {
+    const res = await fetch("/api/download", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url, format }),
     });
 
-    /* ========================= */
-    /* Toast Function */
-    /* ========================= */
-    function showToast(message) {
-      toast.innerText = message;
-      toast.style.display = "block";
-      setTimeout(() => { toast.style.display = "none" }, 3000);
+    const result = await res.json();
+    loader.style.display = "none";
+
+    if (!result.success) {
+      return showToast(result.message);
     }
 
-    /* ========================= */
-    /* Download Media Function */
-    /* ========================= */
-    async function downloadMedia() {
-      const url = urlInput.value;
-      const format = formatSelect.value;
-      if (!url) return showToast("URL tidak boleh kosong");
+    preview.style.display = "block";
 
-      loader.style.display = "block";
-
-      try {
-        const res = await fetch("/api/download", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url, format }),
-        });
-        const result = await res.json();
-        loader.style.display = "none";
-
-        if (!result.success) return showToast(result.message);
-
-        // YouTube / TikTok
-        if (result.platform === "youtube" || result.platform === "tiktok") {
-          preview.style.display = "block";
-          renderCarousel([{
-            url: result.download,
-            type: "video"
-          }]);
-          videoTitle.innerText = result.title;
-
-          const a = document.createElement("a");
-          a.href = result.download;
-          a.download = result.title + "." + (result.extension || "mp4");
-          document.body.appendChild(a); a.click(); a.remove();
-          return;
-        }
-
-        // Instagram carousel
-        if (result.platform === "instagram" && result.media) {
-          mediaItems = result.media;
-          renderCarousel(mediaItems);
-          videoTitle.innerText = result.title;
-          preview.style.display = "block";
-          return;
-        }
-
-      } catch (err) {
-        loader.style.display = "none";
-        showToast("Gagal mengunduh media");
-      }
+    if (result.thumbnail) {
+      thumb.src = result.thumbnail;
     }
 
-    /* ========================= */
-    /* Carousel Functions */
-    /* ========================= */
-    function renderCarousel(items) {
-      const track = document.getElementById("carouselTrack");
-      const prevBtn = document.querySelector(".prev");
-      const nextBtn = document.querySelector(".next");
+    const a = document.createElement("a");
+    a.href = result.download;
+    a.download = result.title + "." + result.extension;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
 
-      track.innerHTML = "";
-      currentIndex = 0;
-
-      mediaItems = items;
-
-      items.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "carousel-item";
-
-        if (item.type === "image") {
-          div.innerHTML = `<img src="${item.url}" />`;
-        } else {
-          div.innerHTML = `
-        <video controls preload="metadata">
-          <source src="${item.url}" type="video/mp4">
-        </video>
-      `;
-        }
-
-        track.appendChild(div);
-      });
-
-      // Hide navigation if only 1 media
-      if (items.length <= 1) {
-        prevBtn.style.display = "none";
-        nextBtn.style.display = "none";
-      } else {
-        prevBtn.style.display = "block";
-        nextBtn.style.display = "block";
-      }
-
-      updateSlide();
-    }
-
-    function updateSlide() {
-      const track = document.getElementById("carouselTrack");
-      track.style.transform = `translateX(-${currentIndex * 100}%)`;
-    }
-
-    function nextSlide() {
-      if (currentIndex < mediaItems.length - 1) {
-        currentIndex++;
-        updateSlide();
-      }
-    }
-
-    function prevSlide() {
-      if (currentIndex > 0) {
-        currentIndex--;
-        updateSlide();
-      }
-    }
-  </script>
+  } catch (err) {
+    loader.style.display = "none";
+    showToast("Gagal mengunduh media");
+  }
+}
+</script>
 
 </body>
-
 </html>
